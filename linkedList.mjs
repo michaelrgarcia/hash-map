@@ -1,4 +1,4 @@
-function linkedList () {
+export function linkedList () {
     let last = node ("3", null);
     let middle = node ("2", last);
     let first = node ("1", middle);

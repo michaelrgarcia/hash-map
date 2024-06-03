@@ -1,3 +1,5 @@
+import { linkedList } from "./linkedList.mjs";
+
 function HashMap() {
     let buckets = [];
     let capacity = buckets.length;
@@ -26,3 +28,6 @@ function HashMap() {
 
     return { hash }
 }
+
+const list = linkedList();
+
