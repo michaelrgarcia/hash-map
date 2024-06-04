@@ -80,7 +80,7 @@ export function linkedList () {
     return { append, prepend, size, head, tail, at, pop, contains, find, toString };
 }
 
-function node (data, data2) {
+export function node (data, data2) {
     const value = data;
     const next = data2;
 
