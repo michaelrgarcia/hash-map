@@ -1,37 +1,59 @@
 export function linkedList () {
-    let last = node ("3", null);
-    let middle = node ("2", last);
-    let first = node ("1", middle);
+    let first = null;
+    let last =  null;
     
-    let length = 3;
+    let length = 0;
 
     const head = () => {return first};
 
-    const tail = () => {return last};
+    const tail = function() {
+        if (!last) {
+            return first;
+        } else {
+            return last;
+        }
+    };
 
     const append = function(value) {
         const newLast = node (value, null);
 
-        last.next = newLast;
-        last = newLast;
+        if (!first) {
+            first = newLast;
+        } else {
+            last.next = newLast;
+            last = newLast;
+        }
+
         length += 1;
+        
     }
 
-    const prepend = function(value) {
-        const nextNode = node (first.value, first.next);
-        const newFirst = node (value, nextNode);
+    const prepend = function(value) { 
+        const newFirst = node (value, null);
+
+        if (first) {
+            newFirst.next = first; 
+        } 
 
         first = newFirst;
         length += 1;
     }
 
+
+
     const size = () => {return length};
 
-    const at = function(index, current = 1, subject = first) {
-        if (current === index) {
-            return subject;
+    const at = function() {
+        if (first) {
+            return function(index, current = 1, subject = first) {
+                if (current === index) {
+                    return subject;
+                } else {
+                    return at(index, current + 1, subject.next);
+                }
+            }
         } else {
-            return at(index, current + 1, subject.next);
+            return "This linked list is empty."
         }
     }
 
@@ -65,16 +87,24 @@ export function linkedList () {
         }
     }
 
-    const toString = function(current = 1, subject = first, listString = `(${subject.value})`) {
-        if (length === current) {
-            listString = listString + " -> null";
-            return listString;   
-        } else {
-            listString = listString + " -> " + `(${subject.next.value})`;
-            
-            return toString(current + 1, subject.next, listString);
-        }
+    const toString = function() {
+        if (first) {
+            let index = 1;
+            let subject = first;
+            let listString = `(${subject.value})`;
+    
+            while ((index !== length)) {
+                listString = listString + " -> " + `(${subject.next.value})`;
+                index++;
+                subject = subject.next;
+            }
 
+            index = 1;
+            subject = first;
+            return listString += " -> null";
+        } else {
+            return "This linked list is empty."
+        }
     }
 
     return { append, prepend, size, head, tail, at, pop, contains, find, toString };
@@ -95,6 +125,14 @@ list.prepend(value);
 console.log(list.head());
 
 */
+
+console.log(list.toString());
+list.prepend("yo");
+console.log(list.head());
+console.log(list.toString());
+list.prepend("d");
+console.log(list.toString());
+console.log(list.head());
 
 
 
