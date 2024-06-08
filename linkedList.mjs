@@ -77,13 +77,27 @@ export function linkedList () {
         }
     }
     
-    const find = function(value, current = 1, subject = first) {
-        if (value === subject.value) {
-            return current;
-        } else if (length === current) {
-            return null;
+    const find = function(value) {
+        if (first) {
+            let index = 1;
+            let subject = first;
+
+            while (subject !== null && subject.value !== value) {
+                if (index === length) {
+                    return null;
+                } else {
+                    index++;
+                    subject = subject.next;
+                }
+            }
+
+            let indexCopy = index;
+            index = 1;
+            subject = first;
+
+            return indexCopy;
         } else {
-            return find(value, current + 1, subject.next);
+            return "This linked list is empty.";
         }
     }
 
@@ -93,7 +107,7 @@ export function linkedList () {
             let subject = first;
             let listString = `(${subject.value})`;
     
-            while ((index !== length)) {
+            while (index !== length) {
                 listString = listString + " -> " + `(${subject.next.value})`;
                 index++;
                 subject = subject.next;
@@ -103,7 +117,7 @@ export function linkedList () {
             subject = first;
             return listString += " -> null";
         } else {
-            return "This linked list is empty."
+            return "This linked list is empty.";
         }
     }
 
@@ -125,14 +139,6 @@ list.prepend(value);
 console.log(list.head());
 
 */
-
-console.log(list.toString());
-list.prepend("yo");
-console.log(list.head());
-console.log(list.toString());
-list.prepend("d");
-console.log(list.toString());
-console.log(list.head());
 
 
 
