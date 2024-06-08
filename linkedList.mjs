@@ -1,27 +1,29 @@
 export function linkedList () {
     let first = null;
-    let last =  null;
     
     let length = 0;
 
     const head = () => {return first};
 
     const tail = function() {
-        if (!last) {
-            return first;
+        if (first) {
+            let subject = first;
+            while (subject.next !== null) {
+                subject = subject.next;
+            }
+    
+            return subject;
         } else {
-            return last;
+            return null;
         }
     };
 
     const append = function(value) {
         const newLast = node (value, null);
-
         if (!first) {
             first = newLast;
         } else {
-            last.next = newLast;
-            last = newLast;
+            tail().next = newLast;
         }
 
         length += 1;
@@ -39,41 +41,52 @@ export function linkedList () {
         length += 1;
     }
 
-
-
     const size = () => {return length};
 
-    const at = function() {
-        if (first) {
-            return function(index, current = 1, subject = first) {
-                if (current === index) {
-                    return subject;
-                } else {
-                    return at(index, current + 1, subject.next);
-                }
+    const at = function(index) {
+        if (first && index > 0) {
+            let index2 = 1;
+            let subject = first;
+
+            while (index !== index2) {
+                index2++;
+                subject = subject.next
             }
+
+            return subject;
         } else {
-            return "This linked list is empty."
+            return null;
         }
     }
 
     const pop = function() {
-        if (length > 1) {
-            let penult = list.at(length - 1);
+        let penult = null;
 
-            last = penult;
+        if (length === 1) {
+            first = penult;
+        } else {
+            penult = list.at(length - 1);
             penult.next = null;
-            length -= 1;
         }
+        
+        length -= 1;
     }
 
-    const contains = function(value, current = 1, subject = first) {
-        if (value === subject.value) {
+    const contains = function(value) {
+        if (first) {
+            let subject = first;
+
+            while (value !== subject.value) {
+                if (subject.next === null) {
+                    return false;
+                } else {
+                    subject = subject.next;
+                }
+            }
+
             return true;
-        } else if (length === current) {
-            return false;
         } else {
-            return contains(value, current + 1, subject.next);
+            return "This linked list is empty.";
         }
     }
     
@@ -82,8 +95,8 @@ export function linkedList () {
             let index = 1;
             let subject = first;
 
-            while (subject !== null && subject.value !== value) {
-                if (index === length) {
+            while (subject.value !== value) {
+                if (subject.next === null) {
                     return null;
                 } else {
                     index++;
@@ -91,33 +104,25 @@ export function linkedList () {
                 }
             }
 
-            let indexCopy = index;
-            index = 1;
-            subject = first;
-
-            return indexCopy;
+            return index;
         } else {
-            return "This linked list is empty.";
+            return null;
         }
     }
 
     const toString = function() {
         if (first) {
-            let index = 1;
             let subject = first;
             let listString = `(${subject.value})`;
     
-            while (index !== length) {
+            while (subject.next !== null) {
                 listString = listString + " -> " + `(${subject.next.value})`;
-                index++;
                 subject = subject.next;
             }
 
-            index = 1;
-            subject = first;
             return listString += " -> null";
         } else {
-            return "This linked list is empty.";
+            return null;
         }
     }
 
@@ -139,6 +144,7 @@ list.prepend(value);
 console.log(list.head());
 
 */
+
 
 
 
