@@ -129,13 +129,3 @@ function hashMap() {
 }
 
 let HashMap = hashMap();
-
-/*
-
-// archival purposes
-
-HashMap.set("Carlos", "a lot happening rn");
-HashMap.set("Carlos", "hiii");
-HashMap.set("ann", "f");
-
-*/
