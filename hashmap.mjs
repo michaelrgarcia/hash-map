@@ -1,5 +1,3 @@
-import { linkedList } from "./linkedList.mjs";
-
 function hash(key) {
   let hashCode = 0;
 
@@ -14,18 +12,16 @@ function hash(key) {
 
 function hashMap() {
   const buckets = new Array(16);
-  const load_factor = 0.75; // if growth was implemented, i'd use this
+  const loadFactor = 0.75;
   let capacity = buckets.length;
 
   const set = function (key, value) {
-    let hashCode = hash(key);
+    const hashCode = hash(key);
 
     if (hashCode < 0 || hashCode >= capacity) {
       throw new Error("Trying to access index out of bound");
     } else {
-      let list = linkedList();
-      list.append(key, value);
-      buckets[hashCode] = list.head();
+      buckets.splice(hashCode, 0, { key, value });
     }
 
     return buckets;
@@ -36,16 +32,17 @@ function hashMap() {
 
     if (buckets[index]) {
       return buckets[index];
-    } else {
-      return null;
     }
+
+    return null;
   };
 
   const has = function (key) {
+    const keyToFind = key;
     let keyExists = false;
 
     buckets.forEach((bucket) => {
-      if (bucket && bucket.hasOwnProperty([key])) {
+      if (bucket.key === keyToFind) {
         keyExists = true;
       }
     });
@@ -70,7 +67,7 @@ function hashMap() {
     let amountOfKeys = 0;
 
     buckets.forEach((bucket) => {
-      if (bucket) {
+      if (bucket.key) {
         amountOfKeys += 1;
       }
     });
@@ -78,23 +75,60 @@ function hashMap() {
     return amountOfKeys;
   };
 
-  return { set, get, has, remove, length };
+  const clear = function () {
+    buckets.forEach((bucket) => {
+      if (bucket) {
+        const bucketIndex = buckets.indexOf(bucket);
+
+        buckets.splice(bucketIndex, 1);
+      }
+    });
+  };
+
+  const keys = function () {
+    const keys = [];
+
+    buckets.forEach((bucket) => {
+      if (bucket.key) {
+        const { key } = bucket;
+        keys.push(key);
+      }
+    });
+
+    return keys;
+  };
+
+  const values = function () {
+    const bucketValues = [];
+
+    buckets.forEach((bucket) => {
+      if (bucket.value) {
+        const { value } = bucket;
+        bucketValues.push(value);
+      }
+    });
+
+    return bucketValues;
+  };
+
+  const entries = function () {
+    const pairs = [];
+
+    buckets.forEach((bucket) => {
+      if (bucket) {
+        const entries = Object.values(bucket); // hash keys and values are stored under a separate key
+
+        pairs.push(entries);
+      }
+    });
+
+    return pairs;
+  };
+
+  return { set, get, has, remove, length, clear, keys, values, entries };
 }
 
 let HashMap = hashMap();
-
-console.log(HashMap.set("machine gun", "jimi"));
-// console.log(HashMap.get("one of these days"));
-console.log(HashMap.has("machine gun"));
-console.log(HashMap.remove("machine gun"));
-console.log(HashMap.has("machine gun"));
-console.log(HashMap.get("machine gun"));
-
-console.log(HashMap.set("hello", "gg"));
-console.log(HashMap.set("joni mitchell", "fdsf"));
-console.log(HashMap.set("mark kozelek", "gfg"));
-
-console.log(HashMap.length());
 
 /*
 
