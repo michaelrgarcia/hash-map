@@ -45,7 +45,7 @@ function at(list, index) {
   return null;
 }
 
-function pop(list) {
+export function pop(list) {
   let penult = null;
   let length = getSize(list);
 
@@ -75,7 +75,7 @@ function contains(list, value) {
   }
 }
 
-function find(list, value) {
+export function find(list, value) {
   if (list) {
     let index = 1;
     let subject = list;
@@ -95,6 +95,19 @@ function find(list, value) {
   return null;
 }
 
+export function getKeyIndex(list, key) {
+  let nodeIndex = 1; // hash map handles lower indices
+  let subject = list;
+
+  while (subject.key !== key) {
+    nodeIndex += 1;
+
+    subject = subject.next;
+  }
+
+  return nodeIndex;
+}
+
 function toString(list) {
   let str = null;
 
@@ -103,7 +116,7 @@ function toString(list) {
     let listString = `(${subject.value})`;
 
     while (subject.next !== null) {
-      listString = listString + " -> " + `(${subject.next.value})`;
+      listString = listString + " -> " + `(${subject.next.value || subject})`;
       subject = subject.next;
     }
 
@@ -111,4 +124,15 @@ function toString(list) {
   }
 
   return str;
+}
+
+export function removeAt(list, index) {
+  const previousNode = at(list, index - 1);
+  let node = at(list, index);
+
+  if (node && previousNode) {
+    previousNode.next = node.next;
+  }
+
+  node = null;
 }
