@@ -2,6 +2,8 @@
 
 An implementation of the hash map data structure in JavaScript. Features a modified linked list data structure.
 
+### List of functions
+
 1. ```set(key, value)``` takes two arguments, the first is a key and the second is a value that is assigned to this key
 
 2. ```get(key)``` takes one argument as a key and returns the value that is assigned to this key. If a key is not found, it will return ```null```.
