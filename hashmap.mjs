@@ -1,10 +1,8 @@
-import { getTail, linkedList } from "./linkedList.mjs";
+import { getKeyIndex, getTail, linkedList, removeAt } from "./linkedList.mjs";
 
 export default function hashMap() {
   let buckets = new Array(16);
   const loadFactor = 0.75;
-
-  const maxBeforeGrowing = Math.round(buckets.length * loadFactor);
 
   const hash = function (key) {
     let hashCode = 0;
@@ -40,30 +38,92 @@ export default function hashMap() {
     return amountOfKeys;
   };
 
+  const entries = function () {
+    const pairs = [];
+
+    buckets.forEach((bucket) => {
+      if (bucket && bucket.key && bucket.value) {
+        let subject = bucket;
+        const { key, value } = subject;
+
+        pairs.push([key, value]);
+
+        while (subject.next !== null) {
+          subject = subject.next;
+          pairs.push([subject.key, subject.value]);
+        }
+      }
+    });
+
+    return pairs;
+  };
+
+  const has = function (key) {
+    const keyToFind = key;
+    let keyExists = false;
+
+    buckets.forEach((bucket) => {
+      let subject = bucket;
+
+      if (subject.key === keyToFind) {
+        keyExists = true;
+      }
+
+      while (subject.next !== null) {
+        subject = subject.next;
+
+        if (subject.key === keyToFind) {
+          keyExists = true;
+        }
+      }
+    });
+
+    return keyExists;
+  };
+
   const set = function (key, value) {
     const hashCode = hash(key);
+
     const capacity = length();
+    const maxBeforeGrowing = Math.round(buckets.length * loadFactor);
+
+    const existingBucket = buckets[hashCode];
 
     if (hashCode < 0 || hashCode >= buckets.length) {
       throw new Error("Trying to access index out of bound");
     }
 
-    // need to fix "entries" before implementing this
-
     if (capacity > maxBeforeGrowing) {
       const oldSize = buckets.length;
+      const arrayOfNodeArrays = entries();
 
       buckets = new Array(oldSize * 2);
 
-      buckets.forEach((bucket) => {
-        if (bucket.key && bucket.value) {
-          set(bucket.key, bucket.value);
+      arrayOfNodeArrays.forEach((nodeArray) => {
+        if (nodeArray[0] && nodeArray[1]) {
+          const key = nodeArray[0];
+          const value = nodeArray[1];
+
+          set(key, value);
         }
       });
     }
 
-    if (buckets[hashCode]) {
-      const head = buckets[hashCode];
+    if (has(key)) {
+      const headWithDupeKey = buckets.find(
+        (bucket) => bucket && bucket.key === key
+      );
+
+      if (headWithDupeKey) {
+        headWithDupeKey.value = value;
+      } else {
+        const keyIndex = getKeyIndex(existingBucket, key);
+        const node = at(existingBucket, keyIndex);
+
+        node.value = value;
+      }
+    } else if (existingBucket) {
+      const head = existingBucket;
       const tail = getTail(head);
 
       tail.next = linkedList(key, value);
@@ -76,38 +136,42 @@ export default function hashMap() {
 
   const get = function (key) {
     let index = hash(key);
+    let value;
 
-    if (buckets[index]) {
-      return buckets[index];
+    if (buckets[index].key === key) {
+      value = buckets[index].value;
+    } else {
+      // key with same hash is present at index, but is buried somewhere in the linked list
+
+      let subject = buckets[index];
+
+      while (subject.key !== key) {
+        subject = subject.next;
+      }
+
+      value = subject.value;
     }
 
-    return null;
-  };
-
-  const has = function (key) {
-    const keyToFind = key;
-    let keyExists = false;
-
-    buckets.forEach((bucket) => {
-      if (bucket.key === keyToFind) {
-        keyExists = true;
-      }
-    });
-
-    return keyExists;
+    return value;
   };
 
   const remove = function (key) {
+    const hashCode = hash(key);
+    let removed = false;
+
     if (has(key)) {
-      const matchingBucket = get(key);
-      const bucketIndex = buckets.indexOf(matchingBucket);
+      const keyIndex = getKeyIndex(buckets[hashCode], key);
 
-      buckets.splice(bucketIndex, 1);
+      if (keyIndex === 1) {
+        buckets[hashCode] = buckets[hashCode].next;
+      } else {
+        removeAt(buckets[hashCode], keyIndex);
+      }
 
-      return true;
+      removed = true;
     }
 
-    return false;
+    return removed;
   };
 
   const clear = function () {
@@ -121,16 +185,23 @@ export default function hashMap() {
   };
 
   const keys = function () {
-    const keys = [];
+    const bucketKeys = [];
 
     buckets.forEach((bucket) => {
       if (bucket.key) {
         const { key } = bucket;
-        keys.push(key);
+        let subject = bucket;
+
+        bucketKeys.push(key);
+
+        while (subject.next !== null) {
+          subject = subject.next;
+          bucketKeys.push(subject.key);
+        }
       }
     });
 
-    return keys;
+    return bucketKeys;
   };
 
   const values = function () {
@@ -151,26 +222,6 @@ export default function hashMap() {
     });
 
     return bucketValues;
-  };
-
-  const entries = function () {
-    const pairs = [];
-
-    buckets.forEach((bucket) => {
-      if (bucket && bucket.key && bucket.value) {
-        let subject = bucket;
-        const { key, value } = subject;
-
-        pairs.push([key, value]);
-
-        while (subject.next !== null) {
-          subject = subject.next;
-          pairs.push([subject.key, subject.value]);
-        }
-      }
-    });
-
-    return pairs;
   };
 
   return { set, get, has, remove, length, clear, keys, values, entries };
