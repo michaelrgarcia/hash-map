@@ -1,27 +1,74 @@
-function hash(key) {
-  let hashCode = 0;
+import { getTail, linkedList } from "./linkedList.mjs";
 
-  const primeNumber = 31;
-  for (let i = 0; i < key.length; i++) {
-    hashCode = primeNumber * hashCode + key.charCodeAt(i);
-    hashCode %= 16;
-  }
-
-  return hashCode;
-}
-
-function hashMap() {
-  const buckets = new Array(16);
+export default function hashMap() {
+  let buckets = new Array(16);
   const loadFactor = 0.75;
-  let capacity = buckets.length;
+
+  const maxBeforeGrowing = Math.round(buckets.length * loadFactor);
+
+  const hash = function (key) {
+    let hashCode = 0;
+
+    const primeNumber = 31;
+    for (let i = 0; i < key.length; i++) {
+      hashCode = primeNumber * hashCode + key.charCodeAt(i);
+      hashCode %= buckets.length;
+    }
+
+    return hashCode;
+  };
+
+  const length = function () {
+    let amountOfKeys = 0;
+
+    buckets.forEach((bucket) => {
+      if (bucket && bucket.key) {
+        let subject = bucket;
+
+        amountOfKeys += 1;
+
+        while (subject.next !== null) {
+          if (subject.key) {
+            amountOfKeys += 1;
+          }
+
+          subject = subject.next;
+        }
+      }
+    });
+
+    return amountOfKeys;
+  };
 
   const set = function (key, value) {
     const hashCode = hash(key);
+    const capacity = length();
 
-    if (hashCode < 0 || hashCode >= capacity) {
+    if (hashCode < 0 || hashCode >= buckets.length) {
       throw new Error("Trying to access index out of bound");
+    }
+
+    // need to fix "entries" before implementing this
+
+    if (capacity > maxBeforeGrowing) {
+      const oldSize = buckets.length;
+
+      buckets = new Array(oldSize * 2);
+
+      buckets.forEach((bucket) => {
+        if (bucket.key && bucket.value) {
+          set(bucket.key, bucket.value);
+        }
+      });
+    }
+
+    if (buckets[hashCode]) {
+      const head = buckets[hashCode];
+      const tail = getTail(head);
+
+      tail.next = linkedList(key, value);
     } else {
-      buckets.splice(hashCode, 0, { key, value });
+      buckets[hashCode] = linkedList(key, value);
     }
 
     return buckets;
@@ -63,18 +110,6 @@ function hashMap() {
     return false;
   };
 
-  const length = function () {
-    let amountOfKeys = 0;
-
-    buckets.forEach((bucket) => {
-      if (bucket.key) {
-        amountOfKeys += 1;
-      }
-    });
-
-    return amountOfKeys;
-  };
-
   const clear = function () {
     buckets.forEach((bucket) => {
       if (bucket) {
@@ -104,7 +139,14 @@ function hashMap() {
     buckets.forEach((bucket) => {
       if (bucket.value) {
         const { value } = bucket;
+        let subject = bucket;
+
         bucketValues.push(value);
+
+        while (subject.next !== null) {
+          subject = subject.next;
+          bucketValues.push(subject.value);
+        }
       }
     });
 
@@ -115,10 +157,16 @@ function hashMap() {
     const pairs = [];
 
     buckets.forEach((bucket) => {
-      if (bucket) {
-        const entries = Object.values(bucket); // hash keys and values are stored under a separate key
+      if (bucket && bucket.key && bucket.value) {
+        let subject = bucket;
+        const { key, value } = subject;
 
-        pairs.push(entries);
+        pairs.push([key, value]);
+
+        while (subject.next !== null) {
+          subject = subject.next;
+          pairs.push([subject.key, subject.value]);
+        }
       }
     });
 
@@ -127,5 +175,3 @@ function hashMap() {
 
   return { set, get, has, remove, length, clear, keys, values, entries };
 }
-
-let HashMap = hashMap();
